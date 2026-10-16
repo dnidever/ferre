@@ -137,7 +137,10 @@ def main():
                     except subprocess.TimeoutExpired:
                         raise SystemExit(f'{label} timed out; see {out}')
                 elapsed = time.perf_counter() - start
-                if result.returncode:
+                # FERRE quit(0) deliberately executes STOP 1 in this version.
+                messages = re.findall(r'quit:\s*([^\n]+)', (out / (label + '.log')).read_text())
+                normal_stop = result.returncode == 1 and messages == ['Run ended']
+                if result.returncode and not normal_stop:
                     raise SystemExit(f'{label} failed ({result.returncode}); see {out}')
                 # Fortran STOP can return zero on errors: require valid numerical output too.
                 rows = read_opf(work / outputs['opfile'])

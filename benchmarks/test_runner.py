@@ -41,6 +41,12 @@ class RunnerTests(unittest.TestCase):
             result = subprocess.run(cmd[:-1] + [str(root / 'out3'), '--baseline', str(root / 'out/results.json')],
                                     capture_output=True)
             self.assertEqual(result.returncode, 1)
+            exe.write_text(exe.read_text().replace('9.0 2.0', '1.0 2.0') +
+                           "import sys\nprint('quit: Run ended', file=sys.stderr)\nsys.exit(1)\n")
+            subprocess.run(cmd[:-1] + [str(root / 'out4')], check=True, capture_output=True)
+            exe.write_text(exe.read_text().replace('quit: Run ended', 'quit: Error reading frd file'))
+            result = subprocess.run(cmd[:-1] + [str(root / 'out5')], capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
 
 
 if __name__ == '__main__':

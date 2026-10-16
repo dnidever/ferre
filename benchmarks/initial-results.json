@@ -1,0 +1,543 @@
+{
+  "hardware": "AMD EPYC 9V74 virtual environment; 9 visible CPUs, cgroup quota 8 CPU equivalents; shared host",
+  "optimized": {
+    "schema_version": 1,
+    "executable_sha256": "b7f74c27dcdac0f9c32f990f858c88ca18d548d4a99cad5ce3532b188bea8f4d",
+    "build_label": "GNU Fortran 13.3.0 -O2 -fopenmp; default single precision",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "cpu_count": 9,
+    "inputs_sha256": {
+      "input.nml_all": "a8c3c612b6efead218972294a22e9b546083a92d6c1d6bfdbbdc1433dbf4fb00",
+      "input.nml_interpol": "ea5c97bae4d6afaedbe1db6c4ed65702d31f8f1483dc50ef9104e4b0882ff5e3",
+      "interpol.ipf": "115977f009edd445f4bf6430224c08cf910137b28f9e189a8cd9ddf71a756297",
+      "interpol.mdl": "62c32411affa112210764a44902b60dceecb470f265f47935a624d87b458f0ba",
+      "n_rdesi2-b.dat": "5cf71d541aa5c506884c6ec007c1ab79cda568d1649dd790f22b4d250ce682c1",
+      "rdesi2-b.err": "c321cd92832b361560b11512724ccee846e1c2468c63e29e9bcf1ab09c913aaf",
+      "rdesi2-b.frd": "2580e8ec9bb36743471d7ca852a03f8bc0a3a2ec080573f7758cd3f18ee36bba",
+      "rdesi2-b.ipf": "1f4bcbecb4443e16f53279be6241125d758d9c642257027f7363a7dabc0b0c0c"
+    },
+    "nml": "input.nml_all",
+    "runs": [
+      {
+        "threads": 1,
+        "warmup": true,
+        "seconds": 1.9716017720002128,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 1.8697157569999945,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 1.869201387999965,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 1.975310638999872,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 2,
+        "warmup": true,
+        "seconds": 1.4182811440000478,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 2,
+        "warmup": false,
+        "seconds": 1.267626828000175,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 2,
+        "warmup": false,
+        "seconds": 1.418170578000172,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 2,
+        "warmup": false,
+        "seconds": 1.167314274999626,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 4,
+        "warmup": true,
+        "seconds": 1.267818102000092,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 4,
+        "warmup": false,
+        "seconds": 1.2180016810002599,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 4,
+        "warmup": false,
+        "seconds": 1.2175135110001065,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 4,
+        "warmup": false,
+        "seconds": 1.2672897020001983,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "summary": [
+      {
+        "threads": 1,
+        "median_seconds": 1.8697157569999945,
+        "min_seconds": 1.869201387999965,
+        "max_seconds": 1.975310638999872,
+        "objects_per_hour": 231051.16292818476
+      },
+      {
+        "threads": 2,
+        "median_seconds": 1.267626828000175,
+        "min_seconds": 1.167314274999626,
+        "max_seconds": 1.418170578000172,
+        "objects_per_hour": 340794.3019646633
+      },
+      {
+        "threads": 4,
+        "median_seconds": 1.2180016810002599,
+        "min_seconds": 1.2175135110001065,
+        "max_seconds": 1.2672897020001983,
+        "objects_per_hour": 354679.3134515451
+      }
+    ],
+    "timing_scope": "Whole process: grid load, fitting, uncertainty estimation, output and sorting",
+    "agreement_passed": true
+  },
+  "unoptimized": {
+    "schema_version": 1,
+    "executable_sha256": "7b35592748b5297d3a995771f0ef87958e6ed88e6ab9fc86fe526818c5823b93",
+    "build_label": "GNU Fortran 13.3.0 -O0 -fopenmp; default single precision",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "cpu_count": 9,
+    "inputs_sha256": {
+      "input.nml_all": "a8c3c612b6efead218972294a22e9b546083a92d6c1d6bfdbbdc1433dbf4fb00",
+      "input.nml_interpol": "ea5c97bae4d6afaedbe1db6c4ed65702d31f8f1483dc50ef9104e4b0882ff5e3",
+      "interpol.ipf": "115977f009edd445f4bf6430224c08cf910137b28f9e189a8cd9ddf71a756297",
+      "interpol.mdl": "62c32411affa112210764a44902b60dceecb470f265f47935a624d87b458f0ba",
+      "n_rdesi2-b.dat": "5cf71d541aa5c506884c6ec007c1ab79cda568d1649dd790f22b4d250ce682c1",
+      "rdesi2-b.err": "c321cd92832b361560b11512724ccee846e1c2468c63e29e9bcf1ab09c913aaf",
+      "rdesi2-b.frd": "2580e8ec9bb36743471d7ca852a03f8bc0a3a2ec080573f7758cd3f18ee36bba",
+      "rdesi2-b.ipf": "1f4bcbecb4443e16f53279be6241125d758d9c642257027f7363a7dabc0b0c0c"
+    },
+    "nml": "input.nml_all",
+    "runs": [
+      {
+        "threads": 1,
+        "warmup": true,
+        "seconds": 3.373246167999696,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 3.5741775009996672,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 3.423262121999869,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "threads": 1,
+        "warmup": false,
+        "seconds": 3.323756542999945,
+        "objects": 120,
+        "comparison": {
+          "passed": true,
+          "max_abs_difference_by_column": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "summary": [
+      {
+        "threads": 1,
+        "median_seconds": 3.423262121999869,
+        "min_seconds": 3.323756542999945,
+        "max_seconds": 3.5741775009996672,
+        "objects_per_hour": 126195.41963313802
+      }
+    ],
+    "timing_scope": "Whole process: grid load, fitting, uncertainty estimation, output and sorting",
+    "agreement_passed": true
+  }
+}

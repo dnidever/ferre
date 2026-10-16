@@ -13,7 +13,7 @@ makefile does not express all module dependencies. From the repository root:
 ```bash
 make -C src clean
 make -C src F90=gfortran OPT='-O3 -march=native -fopenmp'
-python3 benchmarks/run.py --exe bin/ferre.x --case test \
+python3 benchmarks/run.py --exe bin/ferre --case test \
   --threads 1 2 4 8 --repeats 3 --out /tmp/ferre-optimized \
   --build-label 'gfortran: record version here; -O3 -march=native -fopenmp'
 ```
@@ -79,3 +79,6 @@ filesystem, and build flags alongside results. Repeat on relevant thread counts.
    parameters, uncertainties and failure rates, not just kernel time.
 
 Run harness tests: `python3 -m unittest discover -s benchmarks -p 'test_*.py'`.
+
+FERRE currently returns exit code 1 even on normal completion. The runner accepts
+that code only with exactly one `quit: Run ended` diagnostic, then validates OPFILE.
