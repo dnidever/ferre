@@ -82,3 +82,9 @@ Run harness tests: `python3 -m unittest discover -s benchmarks -p 'test_*.py'`.
 
 FERRE currently returns exit code 1 even on normal completion. The runner accepts
 that code only with exactly one `quit: Run ended` diagnostic, then validates OPFILE.
+
+## Public APOGEE fixture
+
+See [apogee-results.md](apogee-results.md) for measured APOGEE timings and the
+`prepare_apogee.py` command to download a small reproducible DR17 GK PCA slice.
+This optional preparation script requires numpy and curl.
