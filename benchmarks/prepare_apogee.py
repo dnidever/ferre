@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Download a contiguous 4D DR17 GK PCA slice and prepare deterministic test spectra.
-Requires numpy, curl, and a compiled FERRE executable. About 65 MB downloaded.
+"""Download a contiguous 4D or 5D DR17 GK PCA slice and prepare deterministic test spectra.
+Requires numpy, curl, and a compiled FERRE executable. About 62 MB (4D) or 300 MB (5D) downloaded.
 """
 import argparse
 import hashlib
@@ -27,8 +27,11 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def slice_header(text):
-    """Drop the three fixed leading dimensions in every SYNTH header."""
+def slice_header(text, dimensions=4):
+    """Drop fixed leading dimensions consistently in every SYNTH header."""
+    if dimensions not in (4, 5):
+        raise ValueError("Only 4D and 5D slices are supported")
+    dropped = 7 - dimensions
     blocks = re.findall(r'&SYNTH.*?\n\s*/', text, re.S | re.I)
     if len(blocks) != 4:
         raise ValueError('Unexpected number of SYNTH headers')
@@ -36,13 +39,13 @@ def slice_header(text):
         shape = re.search(r'\bN_P\s*=([^\n]+)', block)
         if not shape or tuple(map(int, shape[1].split())) != SHAPE:
             raise ValueError('Unexpected source grid dimensions')
-    text = re.sub(r'\bN_OF_DIM\s*=\s*7', 'N_OF_DIM = 4', text)
+    text = re.sub(r'\bN_OF_DIM\s*=\s*7', f'N_OF_DIM = {dimensions}', text)
     for key in ['N_P', 'LLIMITS', 'STEPS']:
         text = re.sub(r'\b' + key + r'\s*=([^\n]+)',
-                      lambda m: key + ' = ' + ' '.join(m[1].split()[3:]), text)
+                      lambda m: key + ' = ' + ' '.join(m[1].split()[dropped:]), text)
     text = re.sub(r'\s*LABEL\((\d+)\)\s*=([^\n]+)',
-                  lambda m: '' if int(m[1]) < 4 else
-                  '\n LABEL(' + str(int(m[1])-3) + ') =' + m[2], text)
+                  lambda m: '' if int(m[1]) <= dropped else
+                  '\n LABEL(' + str(int(m[1])-dropped) + ') =' + m[2], text)
     return text
 
 
@@ -50,7 +53,14 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--exe', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True, help='New directory outside repository')
+    p.add_argument('--dimensions', type=int, choices=[4, 5], default=4,
+                   help='5 adds nitrogen; microturbulence and carbon remain fixed')
     a = p.parse_args()
+    dimensions = a.dimensions
+    start = START if dimensions == 4 else (2*11+6)*6*SIZE
+    size = SIZE if dimensions == 4 else 6*SIZE
+    truth_parameters = TRUTH if dimensions == 4 else np.column_stack(([.15,.65,-.20,.90], TRUTH))
+    initial = '0.0 -0.5 2.5 4500' if dimensions == 4 else '0.3 0.0 -0.5 2.5 4500'
     exe = a.exe.resolve()
     out = a.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -59,17 +69,17 @@ def main():
                     '-o', str(original)], check=True)
     headers = out / 'download-headers.txt'
     binary = out / 'subset.unf'
-    subprocess.run(['curl', '-fLsS', '--max-time', '300', '--range',
-                    f'{START}-{START+SIZE-1}', BASE+NAME+'.unf',
+    subprocess.run(['curl', '-fLsS', '--max-time', '900', '--range',
+                    f'{start}-{start+size-1}', BASE+NAME+'.unf',
                     '-D', str(headers), '-o', str(binary)], check=True)
-    expected = f'content-range: bytes {START}-{START+SIZE-1}/15681600000'
-    if binary.stat().st_size != SIZE or expected not in headers.read_text().lower():
+    expected = f'content-range: bytes {start}-{start+size-1}/15681600000'
+    if binary.stat().st_size != size or expected not in headers.read_text().lower():
         raise ValueError('Server did not deliver the requested exact binary range')
-    (out / 'subset.hdr').write_text(slice_header(original.read_text()))
+    (out / 'subset.hdr').write_text(slice_header(original.read_text(), dimensions))
     (out / 'truth.ipf').write_text('\n'.join('truth%d '%i + ' '.join(map(str,row))
-                                           for i,row in enumerate(TRUTH,1))+'\n')
-    (out / 'generate.nml').write_text("""&LISTA
- NDIM=4 NOV=0 INTER=3
+                                           for i,row in enumerate(truth_parameters,1))+'\n')
+    (out / 'generate.nml').write_text(f"""&LISTA
+ NDIM={dimensions} NOV=0 INTER=3
  SYNTHFILE(1)='subset.hdr' F_FORMAT=1 F_ACCESS=0
  PFILE='truth.ipf' OFFILE='truth.mdl' OPFILE='truth.opf'
  PCACHI=0 PCAPROJECT=0 CONT=0
@@ -95,14 +105,14 @@ def main():
             name = f'snr{snr}_star{i+1}'
             obs.append(row+rng.normal(0,1/snr,row.size))
             errors.append(np.full(row.size,1/snr))
-            params.append(name+' 0.0 -0.5 2.5 4500')
-            truth.append({'id':name,'snr':snr,'truth':TRUTH[i].tolist()})
+            params.append(name+' '+initial)
+            truth.append({'id':name,'snr':snr,'truth':truth_parameters[i].tolist()})
     np.savetxt(case/'spectra.frd',obs,fmt='%.8e')
     np.savetxt(case/'spectra.err',errors,fmt='%.8e')
     (case/'spectra.ipf').write_text('\n'.join(params)+'\n')
     (case/'truth.json').write_text(json.dumps(truth,indent=2)+'\n')
-    (case/'input.nml').write_text("""&LISTA
- NDIM=4 NOV=4 INDV=1 2 3 4 INTER=3
+    (case/'input.nml').write_text(f"""&LISTA
+ NDIM={dimensions} NOV={dimensions} INDV={' '.join(str(i) for i in range(1,dimensions+1))} INTER=3
  SYNTHFILE(1)='subset.hdr' F_FORMAT=1 F_ACCESS=0
  PFILE='spectra.ipf' FFILE='spectra.frd' ERFILE='spectra.err'
  OPFILE='fit.opf' OFFILE='fit.mdl'
@@ -112,11 +122,11 @@ def main():
     (case/'provenance.json').write_text(json.dumps({
         'header_url':BASE+NAME+'.hdr','binary_url':BASE+NAME+'.unf',
         'source_header_sha256':sha(original),'slice_sha256':sha(binary),
-        'generator_sha256':sha(exe),'byte_start':START,'byte_count':SIZE,
-        'original_shape':SHAPE,'fixed_zero_based_indices':FIXED,
-        'fixed_physical_values':{'log10_vmicro':.07918,'C':0,'N':0},
-        'seed':20261016,'axes':['alpha','M/H','logg','Teff'],
-        'limitations':'4D slice, synthetic self-consistency, fixed continuum, not full ASPCAP'
+        'generator_sha256':sha(exe),'byte_start':start,'byte_count':size,
+        'original_shape':SHAPE,'fixed_zero_based_indices':FIXED if dimensions == 4 else FIXED[:2],
+        'fixed_physical_values':{'log10_vmicro':.07918,'C':0, **({'N':0} if dimensions == 4 else {})},
+        'seed':20261016,'axes':(['N'] if dimensions == 5 else [])+['alpha','M/H','logg','Teff'],
+        'limitations':f'{dimensions}D slice, synthetic self-consistency, fixed continuum, not full ASPCAP'
     },indent=2)+'\n')
     print(f'Prepared {case}')
 

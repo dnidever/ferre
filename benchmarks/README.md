@@ -88,3 +88,19 @@ that code only with exactly one `quit: Run ended` diagnostic, then validates OPF
 See [apogee-results.md](apogee-results.md) for measured APOGEE timings and the
 `prepare_apogee.py` command to download a small reproducible DR17 GK PCA slice.
 This optional preparation script requires numpy and curl.
+
+### Five-dimensional nitrogen benchmark
+
+Add `--dimensions 5` to `prepare_apogee.py` to retain nitrogen as a fifth
+varying axis. This downloads 285,120,000 binary bytes plus the 14.7 MB header,
+and leaves carbon and microturbulence fixed. The default remains the earlier
+4D fixture for reproducibility. Use separate output directories for each case.
+
+```bash
+python3 benchmarks/prepare_apogee.py --dimensions 5 --exe bin/ferre \
+  --out /tmp/apogee-5d-fixture
+python3 benchmarks/run.py --exe bin/ferre --case /tmp/apogee-5d-fixture/case \
+  --nml input.nml --threads 1 2 4 --repeats 3 --out /tmp/apogee-5d-timings
+```
+
+Measured five-dimensional results: [apogee-5d-results.md](apogee-5d-results.md).
