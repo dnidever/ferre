@@ -104,3 +104,8 @@ python3 benchmarks/run.py --exe bin/ferre --case /tmp/apogee-5d-fixture/case \
 ```
 
 Measured five-dimensional results: [apogee-5d-results.md](apogee-5d-results.md).
+
+## Performance experiments
+
+See [experiments/README.md](experiments/README.md) for profiled CPU changes,
+measured speedups, isolated build commands, and the GPU forward-model prototype.
