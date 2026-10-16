@@ -51,10 +51,14 @@ do i=1,4**ndim
    findex(i)=dot_product(ntimes,int(t(1:ndim))+ee(1:ndim,i)-2+offset(1:ndim))+1		
 enddo
 
+!write(*,*)'ee(1:ndim,:)=',ee(1:ndim,:)
+!write(*,*)'findex=',findex
+!write(*,*)'loading data in work...'
+
 !load wrk
 if (f_access == 0) then
   do i=1,4**ndim	
-	wrk(1:npix,i)=f(1:npix,findex(imap(i)))		
+	wrk(1:npix,i)=f(1:npix,findex(imap(i)))	
   enddo
 else
   !$omp critical
@@ -70,6 +74,7 @@ else
   !$omp end critical
 endif
 
+!write(*,*)'interpolating ...'
 
 !interpolate
 do i=1,ndim
