@@ -17,6 +17,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 	use share, only: dp,ndim,nov,indv,npix,nlambda1,probe,badflux,winter,lambda_syn, & 
 						mlsf,nlsf
 	
+	use grid_geometry, only: sparse_active, invalid_model
 	implicit none
 	
 	!input/output
@@ -49,6 +50,11 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 
 
         call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
+        if (sparse_active .and. invalid_model(flux)) then
+            sp=-1._dp
+            lchi=20._dp
+            return
+        endif
 
 	lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 	lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
@@ -89,6 +95,10 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 		
 				!eval chi**2
 				call flx(ptmp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
+                if (sparse_active .and. invalid_model(flux)) then
+                    sp(indv(1:nov))=-1._dp
+                    return
+                endif
 				chi2=sum(w*(obs-flux)**2)
 				y(l)=chi2*chiscale/(nlambda1-nov+1)
 				
@@ -109,6 +119,10 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 				
 				!eval chi**2
 				call flx(ptmp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
+                if (sparse_active .and. invalid_model(flux)) then
+                    sp(indv(1:nov))=-1._dp
+                    return
+                endif
 				chi2=sum(w*(obs-flux)**2)
 				y(l+np)=chi2*chiscale/(nlambda1-nov+1)		
 		

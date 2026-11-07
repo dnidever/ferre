@@ -57,8 +57,8 @@ getlsf.f90 lsf_gauss.f90 normal.f90 normal2.f90 physical.f90 fsort.f90 msort.f90
 setuplambda.f90 wresample.f90 convol.f90 decompress.f90 \
 count_words.f90 quit.f90 
 
-SOURCE_MODULES = share.f90 fun.f90 nelder_mead.f90 \
-booklib.f90 random.f90 timer.f90 btr.f90 uob.f90 trn.f90 \
+SOURCE_MODULES = share.f90 grid_geometry.f90 booklib.f90 sparse_interpolation.f90 fun.f90 nelder_mead.f90 \
+ random.f90 timer.f90 btr.f90 uob.f90 trn.f90 \
 m_mrgrnk.f90 lsq.f90 rnglib.f90 ranlib.f90 pdflib.f90 mcmc.f90 qr.f90
 
 MODS = $(SOURCE_MODULES:.f90=.mod)
@@ -68,8 +68,8 @@ OBJS = $(SOURCE_MODULES:.f90=.o) $(SOURCE:.f90=.o)
 all: a.out ascii2bin  install
 
 #ascii2bin converter
-ascii2bin: share.mod timer.mod checkstat.o quit.o ascii2bin.f90
-	${F90} ${OPT} share.f90 timer.f90 checkstat.f90 quit.f90 ascii2bin.f90 -o ascii2bin
+ascii2bin: share.mod grid_geometry.mod timer.mod checkstat.o quit.o ascii2bin.f90
+	${F90} ${OPT} share.f90 grid_geometry.f90 timer.f90 checkstat.f90 quit.f90 ascii2bin.f90 -o ascii2bin
 
 # 2nd and final step - compiling and linking
 a.out:  ${OBJS} ${SOURCE}
@@ -92,3 +92,11 @@ clean:
 	rm -f a.out ascii2bin ${MODS} ${OBJS}
 
 
+
+grid_geometry.o: share.o
+sparse_interpolation.o: share.o grid_geometry.o booklib.o
+fun.o: grid_geometry.o
+
+share.mod: share.o
+grid_geometry.mod: grid_geometry.o
+timer.mod: timer.o

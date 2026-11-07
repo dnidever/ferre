@@ -9,11 +9,12 @@ subroutine minlocus(wr,fname,w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,
 
 use share, only: 	dp,flen,liobuffer,n_p,ndim,nlambda1,nov,indv,llimits,steps,aa,mlsf,nlsf
 use fun, only: 	objfun
+use grid_geometry
 implicit none
 
 !input/output
 integer, intent(in)	::	wr			!write chi**2 file?
-character(len=flen),intent(in):: 	fname			    !spectrum id
+character(len=*),intent(in):: 	fname			    !spectrum id
 real(dp), intent(in)    :: w(nlambda1)           ! weights
 real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)              ! vector of fixed parameters
@@ -46,6 +47,24 @@ if (wr > 0) then
 	open(5,file=chifile,status='unknown',recl=liobuffer)
 endif
 
+if (sparse_active) then
+    min_chi=huge(1._dp)
+    pos=0.5_dp
+    do i=1,size(node_coordinates,2)
+        do j=1,nov
+            k=indv(j)
+            ulimit=grid_upper(k)
+            p(j)=(node_coordinates(k,i)-llimits(k))/(ulimit-llimits(k))
+            ph(j)=node_coordinates(k,i)
+        enddo
+        call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
+        if (wr > 0) write(5,'(1x,21(1x,f8.5))') ph,chi
+        if (chi < min_chi) then
+            min_chi=chi
+            pos=p
+        endif
+    enddo
+else
 !calculate how many discrete points at which to evaluate fitness
 nt=n_p(indv(nov))
 do j=2,nov
@@ -75,6 +94,8 @@ do i=1,nt
    	enddo
    endif
 enddo
+
+endif
 
 if (wr > 0) close(5)
 

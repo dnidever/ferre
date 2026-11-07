@@ -28,8 +28,10 @@ use share, only: dp,maxndim,maxsynth,flen,    &
                  file_data19,file_data20
 
 		 
+use grid_geometry
 implicit none
 
+character(len=flen) :: nodefile
 !locals	
 real(dp), allocatable	:: 	f2(:,:)		!temporary storage for synth grid
 real(dp), allocatable   ::  fixratio(:) !flux ratio correction
@@ -65,6 +67,7 @@ real(dp)		::  maximo		    !max value of f
 real(dp)		::  minimo		    !min value of f
 
 
+namelist / synth / nodefile
 namelist / synth / multi,synthfile_internal,id,date,n_of_dim,npca,n_p,npix
 namelist / synth / label,llimits,steps,wave,logw,vacuum,resolution,original_sampling
 namelist / synth / synspec,modo,invalid_code,constant,continuum,precontinuum
@@ -75,6 +78,10 @@ namelist / synth / comments11,comments12,comments13,comments14
 namelist / synth / speclib_vers,type,ntot
 
 
+nodefile = ''
+ntot=0
+multi=0
+transposed=0
 !reading header
 !use a small buffer size to read the header	
 open(1,file=synthfile(1),delim='apostrophe',recl=siobuffer)
@@ -333,8 +340,15 @@ if (n_of_dim.lt.nov) then
 endif
 
 
+if (allocated(ntimes)) deallocate(ntimes)
 allocate(ntimes(ndim),stat=istat)
 call checkstat(istat,'ntimes')
+call load_nodes(nodefile,synthfile(1))
+if (sparse_active) then
+    if (any(synthfile(2:maxsynth) > '')) &
+        call grid_error('NODEFILE requires one SYNTHFILE; use MULTI for detector segments')
+    ntimes = 0
+else
 ntot1=ntot
 ntot=n_p(ndim)
 ntimes(ndim)=1
@@ -346,6 +360,7 @@ if (ntot /= ntot1 .and. ntot1 > 0) then
   write(*,*) 'ERROR in read_f'
   write(*,*) 'ntot in the header grid does not match prod(n_p)'
   return
+endif
 endif
 
 
@@ -418,7 +433,11 @@ if (f_access == 1) then
 	if (f_format == 1) then 
 
 		!allocate record and calculate recordlength
-		allocate (record(npix),stat=istat)
+		if (sparse_active .and. transposed/=0) then
+            allocate(record(ntot),stat=istat)
+        else
+            allocate(record(npix),stat=istat)
+        endif
                 call checkstat(istat,'record')
 		inquire (iolength=recordlength) record
     	        deallocate(record)
@@ -429,6 +448,7 @@ if (f_access == 1) then
 		synthfile_binary=synthfile_binary(1:ii-3)
 		synthfile_binary(ii-2:ii)='unf'
 	
+		if (sparse_active) call validate_binary_size(synthfile_binary,npix,ntot)
 		open(10,file=synthfile_binary,access='direct',action='read', &
            form='unformatted',status='old',recl=recordlength)
            
@@ -436,7 +456,12 @@ if (f_access == 1) then
 
 		!set recordlength and format for reading the formatted direct-access file
 		recordlength=npix*12
-		write(fmtformat,*) npix
+        if (sparse_active .and. transposed/=0) recordlength=ntot*12
+        if (sparse_active .and. transposed/=0) then
+            write(fmtformat,*) ntot
+        else
+            write(fmtformat,*) npix
+        endif
 		fmtformat = '(' // fmtformat(2:23) // 'ES12.5' // ')'
 	
 		!compose name for ascii synth file
@@ -480,6 +505,7 @@ if (f_format == 1) then
 	synthfile_binary=synthfile_binary(1:ii-3)
 	synthfile_binary(ii-2:ii)='unf'
 
+	if (sparse_active) call validate_binary_size(synthfile_binary,npix,ntot)
 	open(1,file=synthfile_binary,access='direct', &
            form='unformatted',status='old',recl=recordlength)
 
@@ -502,7 +528,11 @@ else
 			!k=(ii-(i-1)*n_p(4)*n_p(3)*n_p(2)-(j-1)*n_p(4)*n_p(3)-1)/n_p(4)+1
 			!l=ii-(i-1)*n_p(4)*n_p(3)*n_p(2)-(j-1)*n_p(4)*n_p(3)-(k-1)*n_p(4)
 			!write(*,*)i,j,k,l
-			read(1,*) f(:,ii)
+			if (sparse_active) then
+                call read_spectrum(1,f(:,ii))
+            else
+                read(1,*) f(:,ii)
+            endif
 		enddo
 	else
 		do ii=1,npix
@@ -517,6 +547,10 @@ else
 	
 endif
 
+if (sparse_active .and. f_format == 0) then
+    read(1,*,iostat=status) maximo
+    if (status >= 0) call grid_error('Extra spectrum data beyond NODEFILE row count')
+endif
 close(1)
 
 !check if there is a fix file ratio array to be multiplied by the synth grid
@@ -993,6 +1027,7 @@ if (f_access == 1 .or. npca(1) > 0 .or. nov == 0 .or. cont > 0) scaled=0
 if (scaled == 1) then 
 	scalef=sum(f)/real(ntot)/real(npix)
 	write(*,*)'scaling ...'
+	if (sparse_active .and. scalef==0._dp) call grid_error('All sparse spectra are zero')
 	f=f/scalef
 else 
 	scalef=1.0_dp

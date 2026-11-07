@@ -3,6 +3,7 @@ subroutine normal(pf)
 
 use share, only: dp, ndim, n_p, llimits, steps, ntie, indtie
  
+use grid_geometry, only: sparse_active, grid_upper
 implicit none
 
 !params
@@ -13,11 +14,15 @@ real(dp)                :: ulimit
 integer                 :: i
 
 do i=1,ndim
-  ulimit=llimits(i)+steps(i)*(n_p(i)-1)
+  if (sparse_active .and. n_p(i)==1) then
+      pf(i)=0._dp
+      cycle
+  endif
+  ulimit=grid_upper(i)
   pf(i)=0.5_dp+(2._dp*pf(i)-llimits(i)-ulimit)/(2._dp*(ulimit-llimits(i)))
 enddo
 
-if (indtie(1) > 0) then 
+if (indtie(1) > 0 .and. .not.sparse_active) then
   do i=1,ntie
     if (pf(indtie(i)) < 0.0_dp) then
       pf(indtie(i))=0.0_dp

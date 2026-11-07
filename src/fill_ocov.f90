@@ -6,6 +6,7 @@ subroutine fill_ocov (cov,ocov)
 
 use share, only: dp,ndim,nov,indv,n_p,llimits,steps
 			    
+use grid_geometry, only: grid_upper
 implicit none
 
 !input/output 
@@ -21,10 +22,10 @@ real(dp)	 	:: ulimit,ulimit2
 ocov(:,:)=0.0_dp
 do i=1,nov
 	ii1=indv(i)
-	ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
+	ulimit=grid_upper(ii1)
 	do l=1,nov
 		ii2=indv(l)
-		ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
+		ulimit2=grid_upper(ii2)
 		ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
 	enddo
 enddo

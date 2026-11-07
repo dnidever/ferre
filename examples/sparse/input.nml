@@ -1,0 +1,11 @@
+&LISTA
+ NDIM=2
+ NOV=0
+ NTHREADS=1
+ SYNTHFILE(1)='giants.dat'
+ F_FORMAT=0
+ INTER=1
+ CONT=0
+ PFILE='points.ipf'
+ OFFILE='models.txt'
+/

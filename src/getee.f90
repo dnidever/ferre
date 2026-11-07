@@ -31,6 +31,7 @@ subroutine getee
 ! order.
 
 use share, only: ndim,inter,indi,ee,imap
+use grid_geometry, only: sparse_active
 implicit none
 
 integer			:: i,j,k,nr,c1,c2,base
@@ -40,6 +41,7 @@ integer, allocatable 	:: eeindi(:,:)  !copy of ee with columns
 integer 		:: powers(ndim) !(2**0, 2**1, 2**2...)
 
 
+if (sparse_active) return
 select case (inter)
 	case (1,2,3)
 		base=inter+1 !lin,quad., cubic

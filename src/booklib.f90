@@ -4978,6 +4978,9 @@ REAL(KIND=kind) :: p                  !
 REAL(KIND=kind) :: qn                 !
 REAL(KIND=kind) :: un                 ! Temp storage
 
+! Initialize the output status on the successful path as well.
+error = 0
+
 ! Check for sufficient data
 enough_data: IF ( n >= 2 ) THEN
 
@@ -5067,6 +5070,9 @@ REAL(KIND=kind),DIMENSION(n) :: u     ! Temp storage
 REAL(KIND=kind) :: p                  !
 REAL(KIND=kind) :: qn                 !
 REAL(KIND=kind) :: un                 ! Temp storage
+
+! Initialize the output status on the successful path as well.
+error = 0
 
 ! Check for sufficient data
 enough_data: IF ( n >= 2 ) THEN

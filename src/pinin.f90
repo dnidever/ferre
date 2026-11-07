@@ -7,11 +7,13 @@ subroutine    pinin(i,opti,w,pf,opf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
 !   can be overriden using the variable init.
 !
 
-use share, only: dp,ndim,nov,indv,indini,uu,   &
+use share, only: flen,dp,ndim,nov,indv,indini,uu,   &
                  nlambda1,mlsf,nlsf,           &
                  algor,init
 
 
+use grid_geometry, only: sparse_active, fit_penalty
+use fun, only: objfun
 implicit none
 
 !in/out
@@ -31,6 +33,8 @@ real(dp), intent(in)  :: lsfarr(mlsf,nlsf)    ! lsfarray
 real (dp), intent(inout) :: p(nov)
 
 !locals
+real(dp) :: trial_chi, fixed(ndim), original(ndim)
+character(len=flen) :: no_name
 integer   :: j,ii,kk   		
 
 
@@ -68,6 +72,18 @@ else !optimized run
 	    write(*,*)'init has an illegal value'
 	    stop 
 	end select
+endif
+
+if (sparse_active) then
+    original=opf
+    call physical(original)
+    fixed=pf
+    call objfun(w,1._dp,fixed,original,obs,lambda_obs,e_obs,mobs,lsfarr,p,trial_chi)
+    if (trial_chi >= fit_penalty/50._dp) then
+        fixed=pf
+        no_name=''
+        call minlocus(0,no_name,w,1._dp,fixed,original,obs,lambda_obs,e_obs,mobs,lsfarr,p)
+    endif
 endif
 
 !write(*,'(1x,a26,1000(1x,f7.4))')'pinin        -> p(1:nov) = ',p(1:nov)

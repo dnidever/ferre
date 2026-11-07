@@ -8,7 +8,7 @@ use, intrinsic :: iso_fortran_env, only: error_unit
 implicit none
 
 integer	:: stat
-character(len=30) :: array_name
+character(len=*) :: array_name
 
 if (stat /= 0) then
         write (unit=error_unit, fmt='(A, A)') &

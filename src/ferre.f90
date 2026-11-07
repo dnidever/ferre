@@ -3,6 +3,8 @@ program ferre
 
 use share
 use timer
+use grid_geometry
+use, intrinsic :: ieee_arithmetic
 implicit none
 
 
@@ -160,7 +162,7 @@ endif
 
 !check for consistency between inter and n_p
 !inter<min(n_p)
-if (inter >= minval(n_p(1:ndim))) then
+if (inter >= minval(n_p(1:ndim)) .and. .not.sparse_active) then
 	write(*,*) 'ferre: ERROR'
 	write(*,*) 'inter = ',inter,' is >= minval(n_p(1:ndim))=',minval(n_p(1:ndim))
 	write(*,*) 'you need to reduce the order of the interpolations'
@@ -187,9 +189,18 @@ if (winter > 0) then
 	endif
 endif
 
+if (sparse_active) then
+    if (inter>4) call grid_error('INTER must be between -1 and 4')
+    do i=1,ndim
+        if (nov > 0 .and. n_p(i)==1 .and. any(indv(1:nov)==i)) &
+            call grid_error('A singleton axis cannot be free')
+        if (n_p(i)>1 .and. inter>=2 .and. n_p(i)<min(inter+1,4)) &
+            call grid_error('Too few axis coordinates for interpolation order')
+    enddo
+endif
 call getee				       !load ee(ndim,2**ndim/3**ndim) 
 
-if (nov > 0) &
+if (nov > 0 .and. .not.sparse_active) &
   call getaa(nov,n_p(indv(1:nov))) !load aa (used in minlocus)
 if (maxval(indini(1:nov)) > 0) &   
   call getuu					   !load uu (used in pinin)
@@ -426,7 +437,7 @@ write(*,*)'about to enter parallel region!'
 !$omp            lsfcof1,lsfarr1,                                   	&
 !$omp		 dum,etime,date,time,zone,timearr,			&
 !$omp		 fname,trkfile,iqheader,iqh,iqmargin,status)		&
-!$omp	shared(npca,meanspca,vpca,wpca,ff,                   		&
+!$omp	shared(sparse_active,npca,meanspca,vpca,wpca,ff,                   		&
 !$omp            totalnpca,nelnpca,nvar,                            	&
 !$omp            pcaproject,pcachi,constant,                        	&
 !$omp            lsf,mlsf,nlsf,dlsf,lsfcof,lsfarr,                 	&
@@ -504,7 +515,10 @@ call checkstat(istat,'ocov')
 !allocate w,obs,e_obs,fit, and obs_in/lambda_obs when needed
 select case (winter)
 case (0)  !data and library share the same wavelength array
-	!nlambda1=npix
+    if (allocated(lambda_obs)) deallocate(lambda_obs)
+    allocate(lambda_obs(nlambda1),stat=istat)
+    call checkstat(istat,'lambda_obs')
+    lambda_obs=0._dp
 case (1)  !interpolate observations 
 	!nlambda1=totalnpca when lsf>0 and npca grid
 	!nlambda1=npix otherwise
@@ -530,6 +544,10 @@ call checkstat(istat,'w')
 if (allocated(obs)) deallocate(obs)
 allocate (obs(nlambda1),stat=istat)		
 call checkstat(istat,'obs')
+if (nov==0) then
+    obs=1._dp
+    mobs=1._dp
+endif
 if (allocated(e_obs)) deallocate(e_obs)
 allocate (e_obs(nlambda1),stat=istat)		
 call checkstat(istat,'e_obs')
@@ -925,9 +943,11 @@ do j=1,nobj
 	  
 	  !checking that all the fixed input parameters and also the variable 
 	  !parameters initialized from pfile (init=0) are within [0,1]
-	  if (any(pf < 0.0_dp .or. pf >= 1.0_dp)) then
+	  if (any(pf < 0.0_dp .or. pf > 1.0_dp) .or. &
+      (.not.sparse_active .and. any(pf >= 1.0_dp))) then
 		do i=1,ndim
-			if (pf(i) < 0.0_dp .or. pf(i) >= 1.0_dp) then 
+			if (pf(i) < 0.0_dp .or. pf(i) > 1.0_dp .or. &
+                (.not.sparse_active .and. pf(i)>=1._dp)) then
 				status=-2	
 				do k=1,nov
 				  if (indv(k) == i .and. init>0) status=0
@@ -1064,6 +1084,12 @@ do j=1,nobj
         !getting and writing model fluxes
         if (status >= 0) then
           call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr1,fit)
+          if (sparse_active .and. invalid_model(fit)) then
+              status=-4
+              fit=ieee_value(0._dp,ieee_quiet_nan)
+          endif
+        else if (sparse_active) then
+          fit=ieee_value(0._dp,ieee_quiet_nan)
         endif 
 
 
@@ -1106,11 +1132,11 @@ do j=1,nobj
 		
 	
 		!output chi**2 surface
-		if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
+		if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname,e_obs,mobs,lsfarr1)
 
 		!from  normalized to physical units
 		do i=1,ndim
-		  ulimit=llimits(i)+steps(i)*(n_p(i)-1)
+		  ulimit=grid_upper(i)
 		  opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
 		  ospf(i)=spf(i)*(ulimit-llimits(i))
 		enddo	

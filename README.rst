@@ -18,7 +18,7 @@ The Build and test FERRE wheels GitHub Actions workflow produces wheels
 for Linux x86-64, macOS Intel, and macOS Apple Silicon. Download and unpack
 the artifact for your platform from a successful run, then install its wheel::
 
-    python -m pip install /path/to/ferre-1.0.1-py3-none-PLATFORM.whl
+    python -m pip install /path/to/ferre-1.0.2-py3-none-PLATFORM.whl
 
 The installed package provides ferre and ascii2bin commands and includes
 the required Fortran and OpenMP runtime libraries. Run FERRE in a directory
@@ -47,3 +47,21 @@ The existing ferre.ferre scientific module retains its separate scientific
 dependencies. The base installation provides the command-line tools and
 get_executable using only the Python standard library. Wheels are specific
 to their operating system and architecture and support Python 3.9 or later.
+
+
+Sparse grids with uneven spacing
+--------------------------------
+
+FERRE can read an explicit coordinate row for each stored spectrum. It builds
+sorted axes and a sparse hash lookup once, then locates interpolation neighbors
+using the actual coordinates. Missing combinations and zero spectra exclude
+the corresponding interpolation regions.
+
+See docs/sparse-grids.rst for the file format and worked example. From a checkout,
+run the example after installing the wheel::
+
+    cd examples/sparse
+    ferre
+
+The first row in models.txt is a valid interpolated spectrum. The second row
+contains NaN values because a required corner is unavailable.

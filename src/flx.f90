@@ -15,6 +15,8 @@ use share, only: dp,ndim,npix,inter,nfilter,nlambda1,lambda_syn,winter, &
                                     lsf,mlsf,nlsf,cont,ncont,rejectcont,&
                                     mforce,badflux  
                                     
+use grid_geometry, only: sparse_active
+use sparse_interpolation, only: interpolate_sparse
 implicit none
 
 !input/output 
@@ -27,6 +29,7 @@ real(dp), intent(in)	:: lsfarr(mlsf,nlsf)    ! lsfarray
 real(dp),intent(out)	:: flux(nlambda1)	!n vector of output flux
 
 !locals
+logical :: valid
 real(dp)		:: sflux(npix)		!synthetic flux vector
 real(dp)                :: pflux(totalnpca)     !npca expanded array
 real(dp)                :: mflux !mean or median of flux array
@@ -34,11 +37,19 @@ real(dp)        	:: cflux(nlambda1)	!continuum
 
 
 !if outside the 'box', reset fluxes to badflux and quit
-if (minval(p).lt.0.0_dp.or.maxval(p).ge.1.0_dp-epsilon(1.0_dp)) then
+if (minval(p)<0._dp .or. maxval(p)>1._dp .or. &
+    (.not.sparse_active .and. maxval(p)>=1._dp-epsilon(1._dp))) then
    flux(1:nlambda1)=badflux
    return
 endif	
 
+if (sparse_active) then
+    call interpolate_sparse(p,sflux,valid)
+    if (.not.valid) then
+        flux = badflux
+        return
+    endif
+else
 select case (inter)
 case (:0)
 	call nea(p,sflux)
@@ -55,6 +66,7 @@ case default
 	 write(*,*) 'inter=',inter,' must be <= 4'
 	 stop
 end select
+endif
 		
 
 if (winter == 2) then 

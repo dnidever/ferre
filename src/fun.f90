@@ -5,6 +5,7 @@ use share, only: dp,ndim,nov,indv,                           &
                  nlambda1,mlsf,nlsf,                         &
                  trkout
 
+use grid_geometry, only: sparse_active, invalid_model, fit_penalty
 implicit none
 
 contains
@@ -74,7 +75,11 @@ endif
 !evaluate lchi
 call flx(pp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 func=0.0_dp
-func=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+if (sparse_active .and. invalid_model(flux)) then
+    func=fit_penalty
+else
+    func=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+endif
                                                                                
 !write(*,*),'func=',func
 !write(*,*)'exiting objfun',pp
