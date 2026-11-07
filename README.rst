@@ -12,7 +12,7 @@ The FERRE fortran code was written by Carlos Allende Prieto.  David Nidever repa
 some Python code to call the Fortran program and added it to Pypi so it can be pip installed.
 
 Installing precompiled FERRE
----------------------------
+----------------------------
 
 The Build and test FERRE wheels GitHub Actions workflow produces wheels
 for Linux x86-64, macOS Intel, and macOS Apple Silicon. Download and unpack
