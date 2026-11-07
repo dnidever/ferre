@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ferre"
+version = "1.0.1"
+description = "FERRE spectral fitting executable and Python utilities"
+readme = "README.rst"
+requires-python = ">=3.9"
+authors = [{name = "David Nidever"}]
+
+[project.scripts]
+ferre = "ferre._runtime:main"
+ascii2bin = "ferre._runtime:ascii2bin_main"
+
+[tool.setuptools]
+package-dir = {"" = "python"}
+packages = ["ferre"]

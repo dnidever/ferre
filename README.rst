@@ -10,3 +10,40 @@ their error covariance, and the corresponding model prediction.
 
 The FERRE fortran code was written by Carlos Allende Prieto.  David Nidever repackaged it, added
 some Python code to call the Fortran program and added it to Pypi so it can be pip installed.
+
+Installing precompiled FERRE
+---------------------------
+
+The Build and test FERRE wheels GitHub Actions workflow produces wheels
+for Linux x86-64, macOS Intel, and macOS Apple Silicon. Download and unpack
+the artifact for your platform from a successful run, then install its wheel::
+
+    python -m pip install /path/to/ferre-1.0.1-py3-none-PLATFORM.whl
+
+The installed package provides ferre and ascii2bin commands and includes
+the required Fortran and OpenMP runtime libraries. Run FERRE in a directory
+containing input.nml, or pass a control file as supported by FERRE.
+
+Python callers can locate the bundled executable without importing the
+scientific utility module::
+
+    from ferre import get_executable
+    print(get_executable())
+
+Building from source
+--------------------
+
+Installing from a Git checkout or source archive compiles the executables and
+requires GNU Fortran. For a wheel that can be shared with other machines, use
+the automated workflow, which bundles runtime libraries and tests the wheel
+on a separate runner. Wheels are uploaded as Actions artifacts.
+
+The build accepts FC, FFLAGS, and LDFLAGS. For example::
+
+    python -m pip install build
+    python -m build
+
+The existing ferre.ferre scientific module retains its separate scientific
+dependencies. The base installation provides the command-line tools and
+get_executable using only the Python standard library. Wheels are specific
+to their operating system and architecture and support Python 3.9 or later.
