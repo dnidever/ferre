@@ -1,6 +1,8 @@
 """Build FERRE executables inside a platform-specific Python wheel."""
 
 import os
+import platform as host_platform
+import sys
 from pathlib import Path
 import re
 import shlex
@@ -61,6 +63,10 @@ class BinaryWheel(bdist_wheel):
 
     def get_tag(self):
         _, _, platform = super().get_tag()
+        # python.org's universal2 interpreter can run native arm64 or x86_64.
+        # GNU Fortran builds for the running architecture.
+        if sys.platform == "darwin":
+            platform = platform.replace("universal2", host_platform.machine())
         return "py3", "none", platform
 
 
