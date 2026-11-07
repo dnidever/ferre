@@ -18,6 +18,7 @@ jobs:
         run: |
           /opt/python/cp311-cp311/bin/python -m pip install build
           /opt/python/cp311-cp311/bin/python -m build
+          /opt/python/cp311-cp311/bin/python tests/test_build_support.py
           /opt/python/cp311-cp311/bin/python tests/test_kernels.py
           FFLAGS="-O0 -g -fopenmp -fallow-argument-mismatch -fcheck=all" /opt/python/cp311-cp311/bin/python tests/test_kernels.py
           auditwheel repair --plat manylinux_2_28_x86_64 dist/*.whl -w wheelhouse
@@ -38,18 +39,26 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      # Homebrew runtimes on macOS 15 require macOS 15 even when the
+      # executable is compiled for an older target. Use compatible runtimes.
+      - uses: mamba-org/setup-micromamba@v3
         with:
-          python-version: '3.11'
+          environment-name: ferre-build
+          create-args: >-
+            python=3.11 gfortran=13 pip
+            --override-channels -c conda-forge
+          init-shell: none
       - name: Build source archive and wheel
-        shell: bash
+        shell: micromamba-shell {0}
         run: |
-          brew install gcc
-          export FC="$(brew --prefix gcc)/bin/gfortran"
+          export MACOSX_DEPLOYMENT_TARGET=13.0
+          export FFLAGS="-O3 -fopenmp -fallow-argument-mismatch"
           python -m pip install build delocate
           python -m build
+          python tests/test_build_support.py
           python tests/test_kernels.py
           delocate-wheel --require-archs ${{ matrix.arch }} -w wheelhouse dist/*.whl
+          test -n "$(find wheelhouse -name '*macosx_13_0_${{ matrix.arch }}.whl' -print -quit)"
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.arch }}

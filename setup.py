@@ -5,6 +5,7 @@ import platform as host_platform
 import sys
 from pathlib import Path
 import re
+import runpy
 import shlex
 import shutil
 import subprocess
@@ -12,7 +13,10 @@ import tempfile
 
 from setuptools import Distribution, setup
 from setuptools.command.build_py import build_py
-from wheel.bdist_wheel import bdist_wheel
+from setuptools.command.bdist_wheel import bdist_wheel
+
+
+macos_options = runpy.run_path(str(Path(__file__).with_name("build_support.py")))["macos_options"]
 
 
 class BuildFerre(build_py):
@@ -29,6 +33,7 @@ class BuildFerre(build_py):
             "FFLAGS", "-O3 -fopenmp -fallow-argument-mismatch"
         ))
         link_flags = shlex.split(os.environ.get("LDFLAGS", ""))
+        flags, link_flags, _ = macos_options(flags, link_flags)
         destination = Path(self.build_lib).resolve() / "ferre" / "bin"
         destination.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="ferre-build-") as temporary:
@@ -66,7 +71,11 @@ class BinaryWheel(bdist_wheel):
         # python.org's universal2 interpreter can run native arm64 or x86_64.
         # GNU Fortran builds for the running architecture.
         if sys.platform == "darwin":
-            platform = platform.replace("universal2", host_platform.machine())
+            _, _, target = macos_options(
+                shlex.split(os.environ.get("FFLAGS", "")),
+                shlex.split(os.environ.get("LDFLAGS", "")),
+            )
+            platform = "macosx_" + target.replace(".", "_") + "_" + host_platform.machine()
         return "py3", "none", platform
 
 
