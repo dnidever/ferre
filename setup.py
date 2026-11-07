@@ -26,7 +26,7 @@ class BuildFerre(build_py):
         routines = re.search(r"^SOURCE\s*=\s*(.*)$", makefile, re.M)[1].split()
         compiler = shlex.split(os.environ.get("FC", "gfortran"))
         flags = shlex.split(os.environ.get(
-            "FFLAGS", "-O2 -fopenmp -fallow-argument-mismatch"
+            "FFLAGS", "-O3 -fopenmp -fallow-argument-mismatch"
         ))
         link_flags = shlex.split(os.environ.get("LDFLAGS", ""))
         destination = Path(self.build_lib).resolve() / "ferre" / "bin"

@@ -3,13 +3,10 @@
 #	Carlos 2004-2012
 #
 
-F90 = gfortran 
-#F90 = /gpfs/apps/GCC/4.6.1/bin/gfortran
-##OPT = -O2 -fopenmp -ftree-vectorize 
-#OPT= -O2 -fopenmp -pg
-#OPT= -O2 -fopenmp -R /gpfs/apps/GCC/4.6.1/lib 
-OPT= -O0
-#OPT = -O0 -g 
+# Portable optimized default. Command-line OPT=... still overrides it.
+# Use OPT="-O0 -g -fopenmp -fallow-argument-mismatch -fcheck=all" to debug.
+F90 = gfortran
+OPT = -O3 -fopenmp -fallow-argument-mismatch
 
 #F90 = g95
 #OPT= -O2 -openmp

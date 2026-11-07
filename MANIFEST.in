@@ -7,3 +7,8 @@ include docs/sparse-grids.rst
 recursive-include examples/sparse *.dat *.nodes *.ipf *.nml
 recursive-include python/ferre/data/apogee-sparse *
 recursive-include examples/sparse *.py
+
+include docs/performance.rst
+recursive-include benchmarks *.py *.f90
+include tests/test_kernels.py
+recursive-include tests/native *.f90
