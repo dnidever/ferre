@@ -16,7 +16,7 @@ implicit none
 
 !input/output
 integer, intent(in)	::	wr			!write chi**2 file?
-character(len=flen),intent(in):: 	fname			   !spectrum id
+character(len=*),intent(in):: 	fname			   !spectrum id
 real(dp), intent(in)    :: w(nlambda1)          ! weights
 real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)             ! vector of fixed parameters

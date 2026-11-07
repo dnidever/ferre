@@ -125,8 +125,10 @@ every candidate invalid. Such a fit remains invalid and is flagged at output.
 
 The optimizer continues using affine physical-coordinate normalization.
 Bounds and reported parameter/error units come from the true axis endpoints.
-Grid-search initialization visits stored node coordinates instead of a dense
-Cartesian enumeration. Singleton axes can be fixed, but cannot be fitted.
+Grid-search initialization and ALGOR=0/-1 visit stored node coordinates instead
+of a dense Cartesian enumeration. With CHIOUT enabled, sparse diagnostic files
+contain the physical node coordinates followed by the log weighted residual
+sum for each stored node. Singleton axes can be fixed, but cannot be fitted.
 
 Sparse covariance derivatives use small offsets based on the local axis
 spacing. If a derivative probe reaches an excluded region or boundary,

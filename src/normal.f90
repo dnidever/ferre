@@ -22,7 +22,7 @@ do i=1,ndim
   pf(i)=0.5_dp+(2._dp*pf(i)-llimits(i)-ulimit)/(2._dp*(ulimit-llimits(i)))
 enddo
 
-if (indtie(1) > 0 .and. .not.sparse_active) then 
+if (indtie(1) > 0 .and. .not.sparse_active) then
   do i=1,ntie
     if (pf(indtie(i)) < 0.0_dp) then
       pf(indtie(i))=0.0_dp

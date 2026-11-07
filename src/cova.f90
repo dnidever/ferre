@@ -9,7 +9,7 @@ subroutine	cova(w,lambda_obs,obs,mobs,lsfarr,pf,e,cov)
 !
 
 use booklib, only	: mat_inv
-use share, only		: dp,n_p,ndim,nov,indv,npix,nlambda1,badflux,winter,lambda_syn, & 
+use share, only		: dp,n_p,ndim,nov,indv,npix,nlambda1,badflux,winter,lambda_syn, &
                                     mlsf,nlsf
                                     
 use grid_geometry

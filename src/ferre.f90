@@ -190,6 +190,7 @@ if (winter > 0) then
 endif
 
 if (sparse_active) then
+    if (inter>4) call grid_error('INTER must be between -1 and 4')
     do i=1,ndim
         if (nov > 0 .and. n_p(i)==1 .and. any(indv(1:nov)==i)) &
             call grid_error('A singleton axis cannot be free')
@@ -946,7 +947,7 @@ do j=1,nobj
       (.not.sparse_active .and. any(pf >= 1.0_dp))) then
 		do i=1,ndim
 			if (pf(i) < 0.0_dp .or. pf(i) > 1.0_dp .or. &
-                (.not.sparse_active .and. pf(i)>=1._dp)) then 
+                (.not.sparse_active .and. pf(i)>=1._dp)) then
 				status=-2	
 				do k=1,nov
 				  if (indv(k) == i .and. init>0) status=0
@@ -1131,7 +1132,7 @@ do j=1,nobj
 		
 	
 		!output chi**2 surface
-		if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
+		if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname,e_obs,mobs,lsfarr1)
 
 		!from  normalized to physical units
 		do i=1,ndim

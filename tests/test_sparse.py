@@ -290,6 +290,43 @@ class SparseGridTest(unittest.TestCase):
         for actual,expected,tolerance in zip(result,truth,(2,.01,.01)):
             self.assertAlmostEqual(actual,expected,delta=tolerance)
 
+    def test_grid_search_algorithms_and_diagnostic(self):
+        path=self.library()
+        truth=(3600,.25,0)
+        flux=self.spectrum(truth)
+        flux[7]+=.0001
+        (self.work/"obs.frd").write_text(" ".join(map(str,flux))+"\n")
+        (self.work/"obs.err").write_text(" ".join([".003"]*32)+"\n")
+        for algorithm in (0,-1):
+            self.control(path,[(3550,.1,-.1)],fit=True)
+            control=self.work/"input.nml"
+            control.write_text(control.read_text().replace(" ALGOR=1",f" ALGOR={algorithm}\n CHIOUT=1"))
+            self.execute()
+            result=list(map(float,(self.work/"result.opf").read_text().split()[1:4]))
+            for actual,expected,tolerance in zip(result,truth,(2,.01,.01)):
+                self.assertAlmostEqual(actual,expected,delta=tolerance)
+            diagnostic=(self.work/"s000.chi").read_text().splitlines()
+            self.assertEqual(len(diagnostic),len(self.points))
+            self.assertEqual(len(diagnostic[0].split()),4)
+
+    def test_singleton_axis_can_be_fixed(self):
+        path=self.library([row for row in self.points if row[1]==.25])
+        self.control(path,[(3550,.25,-.2),(3550,.3,-.2)])
+        self.execute()
+        self.assertTrue(all(math.isfinite(x) for x in self.models()[0]))
+        self.assertTrue(all(math.isnan(x) for x in self.models()[1]))
+        truth=(3550,.25,-.2)
+        (self.work/"obs.frd").write_text(" ".join(map(str,self.spectrum(truth)))+"\n")
+        (self.work/"obs.err").write_text(" ".join([".003"]*32)+"\n")
+        self.control(path,[(3500,.25,0)],fit=True)
+        control=self.work/"input.nml"
+        control.write_text(control.read_text().replace(" NOV=3"," NOV=2").replace(" INDV=1 2 3"," INDV=1 3"))
+        self.execute()
+        result=list(map(float,(self.work/"result.opf").read_text().split()[1:4]))
+        self.assertAlmostEqual(result[0],3550,delta=2)
+        self.assertEqual(result[1],.25)
+        self.assertAlmostEqual(result[2],-.2,delta=.01)
+
     def test_bad_coordinates_and_record_count(self):
         path = self.library(binary=True)
         original = (self.data/"grid.nodes").read_text()

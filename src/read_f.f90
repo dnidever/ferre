@@ -79,6 +79,9 @@ namelist / synth / speclib_vers,type,ntot
 
 
 nodefile = ''
+ntot=0
+multi=0
+transposed=0
 !reading header
 !use a small buffer size to read the header	
 open(1,file=synthfile(1),delim='apostrophe',recl=siobuffer)
@@ -337,6 +340,7 @@ if (n_of_dim.lt.nov) then
 endif
 
 
+if (allocated(ntimes)) deallocate(ntimes)
 allocate(ntimes(ndim),stat=istat)
 call checkstat(istat,'ntimes')
 call load_nodes(nodefile,synthfile(1))

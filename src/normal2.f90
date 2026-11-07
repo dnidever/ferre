@@ -40,7 +40,7 @@ do i=1,ndim
   endif
 enddo
 
-if (indtie(1) > 0 .and. .not.sparse_active) then 
+if (indtie(1) > 0 .and. .not.sparse_active) then
   do i=1,ntie
     if (pf(indtie(i)) < 0.0_dp) then
       pf(indtie(i))=0.0_dp
