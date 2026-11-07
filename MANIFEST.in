@@ -13,3 +13,6 @@ recursive-include benchmarks *.py *.f90
 include tests/test_kernels.py
 recursive-include tests/native *.f90
 recursive-include benchmarks *.md *.json
+
+include build_support.py
+include tests/test_build_support.py

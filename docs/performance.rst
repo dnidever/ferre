@@ -15,6 +15,15 @@ To build a debug executable from a source checkout::
 
     make -C src a.out ascii2bin OPT="-O0 -g -fopenmp -fallow-argument-mismatch -fcheck=all"
 
+On macOS, the source build automatically finds the SDK using xcrun, avoiding
+linker failures such as "library not found for -lSystem" with older GNU Fortran
+installations. An explicit SDKROOT or SDK flag is respected.
+
+Published Mac wheels target macOS 13 and newer. The compiler and wheel use the
+same MACOSX_DEPLOYMENT_TARGET, and delocate audits the bundled runtime libraries
+against that target. A wheel requiring a newer macOS version cannot be made
+compatible just by renaming its filename.
+
 To build an optimized wheel::
 
     python -m pip install build

@@ -15,10 +15,10 @@ Installing precompiled FERRE
 ----------------------------
 
 The Build and test FERRE wheels GitHub Actions workflow produces wheels
-for Linux x86-64, macOS Intel, and macOS Apple Silicon. Download and unpack
+for Linux x86-64 and macOS 13 or newer on Intel and Apple Silicon. Download and unpack
 the artifact for your platform from a successful run, then install its wheel::
 
-    python -m pip install /path/to/ferre-1.0.3-py3-none-PLATFORM.whl
+    python -m pip install /path/to/ferre-1.0.4-py3-none-PLATFORM.whl
 
 The installed package provides ferre and ascii2bin commands and includes
 the required Fortran and OpenMP runtime libraries. Run FERRE in a directory
@@ -37,6 +37,11 @@ Installing from a Git checkout or source archive compiles the executables and
 requires GNU Fortran. For a wheel that can be shared with other machines, use
 the automated workflow, which bundles runtime libraries and tests the wheel
 on a separate runner. Wheels are uploaded as Actions artifacts.
+
+On macOS, the build locates the SDK with xcrun and passes it to the linker.
+SDKROOT and MACOSX_DEPLOYMENT_TARGET can override the SDK and deployment target.
+The wheel target matches the compiler target; bundled runtime libraries are
+also checked for compatibility.
 
 The build accepts FC, FFLAGS, and LDFLAGS. For example::
 
