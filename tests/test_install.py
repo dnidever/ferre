@@ -27,21 +27,22 @@ def main():
     with tempfile.TemporaryDirectory() as temporary:
         work = Path(temporary)
         (work / "grid.dat").write_text("""&SYNTH
+ ID='wheel-test'
+ DATE='2026-11-07'
  N_OF_DIM=1
  N_P=3
  LABEL(1)='X'
  LLIMITS=0
  STEPS=1
- NPIX=4
+ NPIX=32
  WAVE=15000 1
  LOGW=0
  VACUUM=1
  RESOLUTION=22500
 /
-1 1 1 1
-1 .9 .8 1
-1 .8 .6 1
-""")
+"""+ "\n".join(" ".join(map(str, row * 8)) for row in (
+    [1,1,1,1], [1,.9,.8,1], [1,.8,.6,1]
+)) + "\n")
         (work / "start.ipf").write_text("star 0.5\n")
         (work / "input.nml").write_text("""&LISTA
  NDIM=1
@@ -58,11 +59,11 @@ def main():
 """)
         run(work)
         model = [float(x) for x in (work / "model.mdl").read_text().split()]
-        assert len(model) == 4
-        assert all(abs(a-b) < 1e-5 for a, b in zip(model, (1, .95, .9, 1))), model
+        assert len(model) == 32
+        assert all(abs(a-b) < 1e-5 for a, b in zip(model, (1, .95, .9, 1) * 8)), model
         converted = subprocess.run(
             ["ascii2bin"], cwd=work, input="grid.dat\nunf\n",
-            capture_output=True, text=True,
+            capture_output=True, text=True, errors="replace",
         )
         assert (work / "grid.unf").is_file(), converted.stdout + converted.stderr
 
