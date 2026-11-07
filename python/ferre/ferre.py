@@ -11,6 +11,7 @@ from theborg import emulator
 from astropy.table import Table
 from doppler.spec1d import Spec1D,continuum
 from . import utils
+from ._runtime import get_executable
 
 cspeed = 2.99792458e5  # speed of light in km/s
 
@@ -130,7 +131,7 @@ def interp(pars,wave=None,cont=None,ncont=None,grid='jwstgiant4.dat',
         griddir = '/Users/nidever/synspec/winter2017/jwst/'
     gridfile = griddir+grid
     if ferresrc is None:
-        ferresrc = '/Users/nidever/projects/ferre/bin/ferre.x'
+        ferresrc = get_executable()
     info = gridinfo(gridfile)
 
     # Number of objects
@@ -237,7 +238,7 @@ class FERRE(object):
         cbinsize: continuum normalization fractional wavelength range (from -1 to 1) to bin.  Default is 0.1.
         """
         gridfile = '/Users/nidever/synspec/winter2017/jwst/'+grid
-        ferre = '/Users/nidever/projects/ferre/bin/ferre.x'
+        ferre = get_executable()
         info = gridinfo(gridfile)
         self.grid = grid
         self.gridfile = gridfile
@@ -567,7 +568,7 @@ def fit(slist,inter=3,algor=1,init=1,indini=None,nruns=1,
     """
         
     gridfile = '/Users/nidever/synspec/winter2017/jwst/'+grid
-    ferre = '/Users/nidever/projects/ferre/bin/ferre.x'
+    ferre = get_executable()
 
     # Set up temporary directory
     tmpdir = tempfile.mkdtemp(prefix='ferre')
