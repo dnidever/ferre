@@ -75,7 +75,8 @@ jobs:
           name: ${{ matrix.artifact }}
           path: wheelhouse
       - name: Install wheel on a fresh runner
-        run: python -m pip install --only-binary=:all: --no-deps wheelhouse/*.whl
+        run: |
+          python -m pip install --only-binary=:all: --no-deps wheelhouse/*.whl
       - name: Fetch the pinned APOGEE example
         shell: bash
         run: |
