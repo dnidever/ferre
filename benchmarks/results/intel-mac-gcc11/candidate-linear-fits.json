@@ -1,0 +1,23 @@
+{
+  "platform": "macOS-10.16-x86_64-i386-64bit",
+  "machine": "x86_64",
+  "executable": "ferre",
+  "executable_sha256": "e8ca07ad659de5e3eedb94955292b5ce4d5981a102ca0cbe65438ece2b5b69ca",
+  "generator": "ferre",
+  "grid": "apogee-dr17-mgiant-full",
+  "grid_sha256": "11c30549647399393cc3ae3ca8d5b0ffd93a89fff375a2c585f92b1891a734c4",
+  "observations_sha256": "ccbf65e005d0bf6aec380dd78cfdaf14bcb631e19b2abb114e227cad96c4563e",
+  "interpolation": 1,
+  "threads": 1,
+  "objects": 8,
+  "seconds": [
+    0.12340554100000001,
+    0.124263509,
+    0.1239238800000001
+  ],
+  "median_seconds": 0.1239238800000001,
+  "fits_per_second": 64.55575793785664,
+  "verified_recovery": true,
+  "compiler": "GNU Fortran 11.1.0",
+  "flags": "-O3 -fopenmp -fallow-argument-mismatch"
+}

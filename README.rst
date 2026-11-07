@@ -18,7 +18,7 @@ The Build and test FERRE wheels GitHub Actions workflow produces wheels
 for Linux x86-64, macOS Intel, and macOS Apple Silicon. Download and unpack
 the artifact for your platform from a successful run, then install its wheel::
 
-    python -m pip install /path/to/ferre-1.0.2-py3-none-PLATFORM.whl
+    python -m pip install /path/to/ferre-1.0.3-py3-none-PLATFORM.whl
 
 The installed package provides ferre and ascii2bin commands and includes
 the required Fortran and OpenMP runtime libraries. Run FERRE in a directory
@@ -65,3 +65,13 @@ run the example after installing the wheel::
 
 The first row in models.txt is a valid interpolated spectrum. The second row
 contains NaN values because a required corner is unavailable.
+
+
+Performance
+-----------
+
+Wheel and source builds default to portable -O3 optimization with OpenMP.
+PCA reconstruction traverses contiguous wavelength values, and regular-grid
+spline interpolation reuses weights across wavelengths. See
+`docs/performance.rst <docs/performance.rst>`_ for build overrides, numerical
+checks, and reproducible kernel and complete-fit benchmarks.

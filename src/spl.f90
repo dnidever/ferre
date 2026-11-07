@@ -21,7 +21,7 @@ integer			:: i,j,k,l	!dummy indices
 real(dp)		:: t(ndim)	!input p's run 0-1, t's run 1-n_p(i)
 real(dp)	 	:: wrk(npix,4**ndim) !(4**ndim) working matrix
 real(dp)            	:: delta        !t(indi(i))-int(t(indi(i)))
-real(dp)		:: yp		!temporary variable to hold cbezier call output
+real(dp) :: weights(4)
 real(dp),parameter 	:: xx0(4) = (/-1._dp,0._dp,1._dp,2._dp/)	!usual array of local abscissae
 real(dp)		:: xx(4)	!local abscissae
 real(dp)		:: yy(4)    !local data
@@ -77,19 +77,21 @@ endif
 do i=1,ndim
 	delta=t(indi(i))-int(t(indi(i)))
 	xx=xx0+real(offset(ndim-i+1))
-	!if (offset(ndim-i+1) == 0) then 
-		do j=1,4**(ndim-i)
-			do l=1,npix
-				
-			   	!call cbezier(wrk(l,4*j-3),wrk(l,4*j-2), &
-				!	wrk(l,4*j-1),wrk(l,4*j),delta,yp)
-				
-				yy(1:4)=wrk(l,4*j-3:4*j)
-				call spline_fit(xx,yy,4,ypp,err)
-				call spline_int(xx,yy,4,ypp,delta,yp,err)
-				wrk(l,j)=yp
-			enddo
-		enddo
+    ! Spline interpolation is linear in the four ordinates. Its weights
+    ! depend only on this dimension's abscissae and requested position.
+    do k=1,4
+        yy=0._dp
+        yy(k)=1._dp
+        call spline_fit(xx,yy,4,ypp,err)
+        call spline_int(xx,yy,4,ypp,delta,weights(k),err)
+    enddo
+    do j=1,4**(ndim-i)
+        do l=1,npix
+            wrk(l,j)=weights(1)*wrk(l,4*j-3)+weights(2)*wrk(l,4*j-2)+ &
+                     weights(3)*wrk(l,4*j-1)+weights(4)*wrk(l,4*j)
+        enddo
+    enddo
+
 enddo
 flux(1:npix)=wrk(1:npix,1)
 

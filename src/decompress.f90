@@ -19,17 +19,19 @@ flux=influx
 if (scaled == 1) flux=flux*scalef
 flux = flux - constant
 
+! Reconstruct each block while walking contiguous wavelength elements.
+! Each pixel retains the original component accumulation order.
+outflux=0._dp
+offset=0
 do ii=1,nelnpca
-  	offset=0
-	if (ii > 1) offset=sum(npca(1:ii-1))
-	do i=1,npca(ii)
-		kk=i+offset
-		outflux(kk)=0.0_dp
-		do jj=1,nvar 
-			outflux(kk) = outflux(kk) + flux((ii-1)*nvar+jj)*wpca(kk,jj)
-		enddo
-	enddo
-enddo		  	
+    do jj=1,nvar
+        do i=1,npca(ii)
+            kk=i+offset
+            outflux(kk)=outflux(kk)+flux((ii-1)*nvar+jj)*wpca(kk,jj)
+        enddo
+    enddo
+    offset=offset+npca(ii)
+enddo
 outflux = outflux + meanspca
 	
 
