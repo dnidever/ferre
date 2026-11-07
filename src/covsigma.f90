@@ -5,6 +5,7 @@ subroutine	covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr,e,sp,lchi,cov)
 !	and using the diagonal elements to estimate standard errors
 !
 
+use grid_geometry, only: sparse_active, invalid_model, fit_penalty
 use share, only: dp,ndim,nov,indv,npix,nlambda1,lambda_syn,winter, &
                                     mlsf,nlsf
 
@@ -31,9 +32,14 @@ real(dp)		   :: flux(nlambda1)			!interpolated flux vector
 !evaluate lchi
 call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 lchi=0.0_dp
-lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+if (sparse_active .and. invalid_model(flux)) then
+    lchi=fit_penalty
+else
+    lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+endif
 lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
 
+cov=-1._dp
 sp(1:ndim)=0.0_dp		!initialize
 
 

@@ -17,8 +17,10 @@ use share, only: dp,maxndim,maxsynth,flen,  &
 		 transposed,type,file_data19,file_data20
 		 
 		 
+use grid_geometry
 implicit none
 
+character(len=flen) :: nodefile = ''
 !locals	
 real(dp),allocatable ::  record(:)
 integer                          ::  istat ! allocate status var
@@ -48,6 +50,7 @@ real(dp)			 ::	rangef		    !range of values in f
 real(dp)			 ::	maximo		    !max value of f
 real(dp)			 ::	minimo		    !min value of f
 
+namelist / synth / nodefile
 namelist / synth / multi,synthfile_internal,id,date,n_of_dim,npca,n_p,npix
 namelist / synth / label,llimits,steps,wave,logw,vacuum,resolution,original_sampling
 namelist / synth / synspec,modo,invalid_code,constant,continuum,precontinuum
@@ -208,6 +211,9 @@ do ii=0,multi
 	enddo	
 enddo
 npix=npix2
+ndim=n_of_dim
+call load_nodes(nodefile,synthfile(1))
+if (.not.sparse_active) then
 ntot1=ntot
 ntot=n_p(n_of_dim)
 do j=2,n_of_dim
@@ -217,6 +223,7 @@ if (ntot /= ntot1 .and. ntot1 > 0) then
   write(*,*) 'ERROR in ascii2bin'
   write(*,*) 'ntot in the header grid does not match prod(n_p)'
   return
+endif
 endif
 
 if (npca(1) > 0) then !npca files contain means, v and w
@@ -268,12 +275,20 @@ if (style.eq.'fmt') then
 	
 	if (transposed == 0) then
 		do ii=1,ntot
-			read(1,*) record
+			if (sparse_active .and. transposed==0) then
+                call read_spectrum(1,record)
+            else
+                read(1,*) record
+            endif
 			write(2,fmtformat,rec=ii) record
 		enddo
 	else
 		do ii=1,npix
-			read(1,*) record
+			if (sparse_active .and. transposed==0) then
+                call read_spectrum(1,record)
+            else
+                read(1,*) record
+            endif
 			write(2,fmtformat,rec=ii) record
 		enddo	
 	endif
@@ -288,16 +303,28 @@ else
 
 	if (transposed == 0) then
 		do ii=1,ntot
-			read(1,*) record
+			if (sparse_active .and. transposed==0) then
+                call read_spectrum(1,record)
+            else
+                read(1,*) record
+            endif
 			write(2,rec=ii) record
 		enddo
 	else
 		do ii=1,npix
-			read(1,*) record
+			if (sparse_active .and. transposed==0) then
+                call read_spectrum(1,record)
+            else
+                read(1,*) record
+            endif
 			write(2,rec=ii) record
 		enddo	
 	endif
 	
+endif
+if (sparse_active) then
+    read(1,*,iostat=istat) maximo
+    if (istat>=0) call grid_error('Extra spectrum data beyond NODEFILE row count')
 endif
 close(1)
 close(2)

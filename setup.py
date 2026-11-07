@@ -37,7 +37,7 @@ class BuildFerre(build_py):
                 shutil.copy2(path, work)
             for name, sources in (
                 ("ferre", modules + routines),
-                ("ascii2bin", ["share.f90", "timer.f90", "checkstat.f90",
+                ("ascii2bin", ["share.f90", "grid_geometry.f90", "timer.f90", "checkstat.f90",
                               "quit.f90", "ascii2bin.f90"]),
             ):
                 subprocess.run(compiler + flags + sources + link_flags + ["-o", name],

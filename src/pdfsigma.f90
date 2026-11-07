@@ -4,6 +4,7 @@ subroutine	pdfsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr,e,sp,lchi,cov)
 !	Calculating the covariance matrix by sampling the likelyhood function
 !
 
+use grid_geometry, only: sparse_active, invalid_model, fit_penalty
 use share, only: dp,ndim,nov,indv,npix,nlambda1,lambda_syn,winter, &
                                     mlsf,nlsf
 
@@ -27,7 +28,7 @@ real(dp), intent(out)      :: cov(nov,nov)      !covariance matrix
 integer,parameter  :: nsigma = 4			!how far we go to eval likelyhood
 integer, parameter	   :: nsampling	= 1000 			!n. of points for sampling
 integer		  	   :: i,j,k		!counters
-real(dp)		   :: p(nov)		!vector of var. pars. (1 run)
+real(dp)		   :: p(ndim)		!vector of var. pars. (1 run)
 real(dp)		   :: pm(nov)		!average values
 real(dp)		   :: pt(nsampling,nov) !tmp storage for the results
 real(dp)		   :: lhood(nsampling)  !likelyhood (exp(-chi2/2))
@@ -38,9 +39,14 @@ real(dp)		   :: temp						!tmp variable
 !evaluate lchi
 call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 lchi=0.0_dp
-lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+if (sparse_active .and. invalid_model(flux)) then
+    lchi=fit_penalty
+else
+    lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
+endif
 lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
 
+cov=-1._dp
 sp(1:ndim)=0.0_dp		!initialize
 
 !write(*,*)'pdfsigma:  ERROR -- this routine is NOT to be trusted ... yet'
@@ -67,6 +73,7 @@ else
 		endif
   	enddo
   	
+    if (sparse_active .and. any(sp(indv(1:nov))<0._dp)) return
   	!now we know where to start, let's find the 4-sigma 
   	!intervals in each parameter
   	do j=1,nov
@@ -85,7 +92,7 @@ else
 		     	p(indv(i))=temp*(high(i)-low(i))+low(i)
 	   	enddo
 	   	call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux)
-		pt(j,:)=p
+		pt(j,:)=p(indv(1:nov))
 	   	temp=0.0_dp
 		temp=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 		temp=temp*chiscale/(nlambda1-nov+1)  !chi**2

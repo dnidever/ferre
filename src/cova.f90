@@ -9,9 +9,10 @@ subroutine	cova(w,lambda_obs,obs,mobs,lsfarr,pf,e,cov)
 !
 
 use booklib, only	: mat_inv
-use share, only		: dp,ndim,nov,indv,npix,nlambda1,badflux,winter,lambda_syn, & 
+use share, only		: dp,n_p,ndim,nov,indv,npix,nlambda1,badflux,winter,lambda_syn, & 
                                     mlsf,nlsf
                                     
+use grid_geometry
 implicit none
 
 !in/out
@@ -36,6 +37,10 @@ real(dp)		   :: partial(nov,nlambda1)				!partial derivatives
 real(dp)		   :: alpha(nov,nov)				!curvature matrix
 integer			   :: error = 0						!error code from mat_inv
 
+if (sparse_active) then
+    call sparse_covariance()
+    return
+endif
 p=pf
 do i=1,nov
 
@@ -94,6 +99,39 @@ if (error /= 0) then
 	write(*,*) 'probably indicating a singular matrix'
 	cov(:,:)=-1._dp
 endif
+
+contains
+
+subroutine sparse_covariance()
+integer :: axis, interval, side, d, n
+real(dp) :: span, x, h, left_model(nlambda1), right_model(nlambda1)
+cov=-1._dp
+call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
+if (invalid_model(flux)) return
+do d=1,nov
+    axis=indv(d)
+    n=n_p(axis)
+    span=axis_values(n,axis)-axis_values(1,axis)
+    x=axis_values(1,axis)+pf(axis)*span
+    interval=bracket(axis,x)
+    h=0.001_dp*(axis_values(interval+1,axis)-axis_values(interval,axis))/span
+    if (pf(axis)<h .or. pf(axis)>1._dp-h) return
+    p=pf
+    p(axis)=pf(axis)-h
+    call flx(p,lambda_obs,obs,e,mobs,lsfarr,left_model)
+    p(axis)=pf(axis)+h
+    call flx(p,lambda_obs,obs,e,mobs,lsfarr,right_model)
+    if (invalid_model(left_model) .or. invalid_model(right_model)) return
+    partial(d,:)=(right_model-left_model)/(2._dp*h)
+enddo
+do d=1,nov
+    do side=1,nov
+        alpha(side,d)=sum(partial(d,:)*partial(side,:)/e**2)
+    enddo
+enddo
+call mat_inv(alpha,cov,nov,nov,error)
+if (error/=0) cov=-1._dp
+end subroutine
 
 end subroutine cova
 

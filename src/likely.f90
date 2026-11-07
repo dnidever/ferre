@@ -11,6 +11,7 @@ use share, only: 	dp,flen,liobuffer,n_p,ndim,npix,nlambda1,nov,indv, &
                             llimits,steps,aa,mlsf,nlsf
 use fun, only: 	objfun
 
+use grid_geometry
 implicit none
 
 !input/output
@@ -47,6 +48,12 @@ if (wr > 0) then
 	write(*,*)fname
 	write(*,*)chifile
 	open(5,file=chifile,status='unknown',recl=liobuffer)
+endif
+
+if (sparse_active) then
+    call sparse_average()
+    if (wr > 0) close(5)
+    return
 endif
 
 !calculate how many discrete points at which to evaluate fitness
@@ -101,5 +108,39 @@ enddo
 
 
 if (wr > 0) close(5)
+
+contains
+
+subroutine sparse_average()
+integer :: record, axis
+real(dp) :: total_weight, weight, scale
+min_chi=huge(1._dp)
+pos=0.5_dp
+do record=1,size(node_coordinates,2)
+    do j=1,nov
+        axis=indv(j)
+        p(j)=(node_coordinates(axis,record)-llimits(axis))/(grid_upper(axis)-llimits(axis))
+    enddo
+    call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
+    if (chi<fit_penalty/50._dp) min_chi=min(min_chi,chi)
+    if (wr>0) write(5,'(1x,21(1x,f8.5))') node_coordinates(indv(1:nov),record),chi
+enddo
+if (min_chi==huge(1._dp)) return
+scale=max(min_chi,epsilon(1._dp))
+pos=0._dp
+total_weight=0._dp
+do record=1,size(node_coordinates,2)
+    do j=1,nov
+        axis=indv(j)
+        p(j)=(node_coordinates(axis,record)-llimits(axis))/(grid_upper(axis)-llimits(axis))
+    enddo
+    call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
+    if (chi>=fit_penalty/50._dp) cycle
+    weight=exp(-10._dp*(chi-min_chi)/scale)
+    pos=pos+weight*p
+    total_weight=total_weight+weight
+enddo
+pos=pos/total_weight
+end subroutine
 
 end subroutine likely
