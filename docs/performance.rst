@@ -122,3 +122,15 @@ depends on the workload. PCA and INTER=4 improvements only matter when those
 routines contribute to the fit. A small grid's startup and output costs can
 obscure interpolation gains. Compare matching inputs and flags on the same
 machine, and profile representative scientific fits before generalizing.
+
+Recorded complete-fit comparison
+--------------------------------
+
+The benchmarks/results/intel-mac-gcc11 directory contains raw timings for an
+initial comparison on an x86_64 Mac with GNU Fortran 11.1.0. Eight complete
+regular APOGEE fits, with identical observations and one thread, improved from
+0.1579 to 0.1239 seconds for linear interpolation (1.27x) and from 15.2590 to
+0.2454 seconds for spline interpolation (62.18x). Each result is the median of
+three trials and includes loading, fitting, uncertainties, and output. Baseline
+uses the previous -O2 build; candidate uses these kernels and -O3. These are
+small three-label, CONT=0 examples; neither exercises PCA decompression.

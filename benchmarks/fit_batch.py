@@ -74,7 +74,7 @@ def main():
  SYNTHFILE(1)='{args.stem}.hdr'
  F_FORMAT=1
  INTER={args.inter}
- NTHREADS={args.threads}
+ NTHREADS=1
  CONT=0
  PFILE='starts.ipf'
  OFFILE='models.mdl'
@@ -101,6 +101,9 @@ def main():
  ERFILE='errors.err'
  FILTERFILE='weights.dat'
  OPFILE='fits.opf'""")
+        # Generate inputs serially so row order and hashes are independent
+        # of the requested number of fitting threads.
+        control = control.replace('NTHREADS=1', f'NTHREADS={args.threads}')
         (work / 'input.nml').write_text(control)
         def fit():
             elapsed = run(executable, work)
