@@ -17,3 +17,6 @@ ascii2bin = "ferre._runtime:ascii2bin_main"
 [tool.setuptools]
 package-dir = {"" = "python"}
 packages = ["ferre"]
+
+[tool.setuptools.package-data]
+ferre = ["data/apogee-sparse/*"]

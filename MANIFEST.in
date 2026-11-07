@@ -5,3 +5,5 @@ prune test
 
 include docs/sparse-grids.rst
 recursive-include examples/sparse *.dat *.nodes *.ipf *.nml
+recursive-include python/ferre/data/apogee-sparse *
+recursive-include examples/sparse *.py

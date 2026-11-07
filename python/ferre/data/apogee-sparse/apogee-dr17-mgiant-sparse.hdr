@@ -1,0 +1,13 @@
+&SYNTH
+ ID='APOGEE DR17 M giant sparse 3D'
+ N_OF_DIM=3
+ LABEL(1)='METALS'
+ LABEL(2)='LOGG'
+ LABEL(3)='TEFF'
+ NODEFILE='apogee-dr17-mgiant-sparse.nodes'
+ NPIX=8575
+ WAVE=4.179000 0.000006
+ LOGW=1
+ VACUUM=1
+ RESOLUTION=22500
+/

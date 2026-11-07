@@ -176,3 +176,31 @@ Run the sparse integration suite against an installed wheel::
 To test a source build, set FERRE_TEST_EXECUTABLE and FERRE_TEST_CONVERTER to
 its executable paths. The wheel workflow runs both the legacy APOGEE
 installation test and this sparse suite on fresh Linux and Mac runners.
+
+Packaged APOGEE example
+----------------------
+
+A real three-label APOGEE DR17 M-giant example is installed with the package::
+
+    from importlib.resources import files
+    directory = files('ferre').joinpath('data/apogee-sparse')
+    header = directory.joinpath('apogee-dr17-mgiant-sparse.hdr')
+    print(header)
+
+Set SYNTHFILE(1) to this header path, F_FORMAT=1, NDIM=3, and INTER=1.
+Input parameter order is METALS, LOGG, TEFF. For example, ``-0.62 0.8 3550``
+is supported, while ``-0.62 0.25 3700`` requires an excluded corner and
+returns NaN. A fit uses NOV=3 and INDV=1 2 3. Convert the accompanying
+``-weights.json`` array to a whitespace-separated FILTERFILE for fitting;
+its zero weights mask detector gaps and unmodeled edge pixels.
+
+The grid has 56 spectra and all 8575 apStar wavelength samples. The shared
+axes are METALS=[-1,-0.75,-0.5,0], LOGG=[0,0.5,1,2], and
+TEFF=[3400,3500,3600,3800]. At each metallicity the (TEFF, LOGG) corners
+(3400,2) and (3800,0) are omitted as illustrative exclusions. The package's
+example README records provenance, storage details, and reproduction commands.
+The original regular subset remains available in the ASPCAP repository.
+
+``tests/test_apogee_sparse.py`` tests interpolation, rejection of an excluded
+cell, and recovery of all three parameters from a generated spectrum. The wheel
+workflow runs it against the installed data, outside the source checkout.
