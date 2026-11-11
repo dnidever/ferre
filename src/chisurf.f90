@@ -8,6 +8,7 @@ subroutine chisurf(w,obs,lambda_obs,fname,e_obs,mobs,lsfarr)
 
 use share, only: dp,flen,liobuffer,n_p,ntot,ndim,nov,npix,nlambda1,f,winter,lambda_syn,mlsf,nlsf
 use grid_geometry
+use quantized_grid, only: quantized_active
 implicit none
 
 !input/output
@@ -35,9 +36,22 @@ write(*,*)'printing out ',chifile
 open(15,file=chifile,status='unknown',recl=liobuffer)
 !write(15,*)fname
 !write(5,*)obs
-if (sparse_active) then
+if (sparse_active .or. quantized_active) then
     do i=1,ntot
-        p=node_coordinates(:,i)
+        if (sparse_active) then
+            p=node_coordinates(:,i)
+        else
+            block
+                integer :: d, stride, remainder
+                remainder=i-1
+                do d=ndim,1,-1
+                    stride=mod(remainder,n_p(d))
+                    p(d)=real(stride,dp)/real(max(1,n_p(d)-1),dp)
+                    remainder=remainder/n_p(d)
+                enddo
+                call physical(p)
+            end block
+        endif
         call normal(p)
         call flx(p,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
         if (invalid_model(flux)) then
@@ -45,7 +59,12 @@ if (sparse_active) then
         else
             lchi=log10(max(sum(w*(obs-flux)**2),tiny(1._dp)))
         endif
-        write(15,*) node_coordinates(:,i),lchi
+        if (sparse_active) then
+            write(15,*) node_coordinates(:,i),lchi
+        else
+            call physical(p)
+            write(15,*) p,lchi
+        endif
     enddo
     close(15)
     return

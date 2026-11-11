@@ -2,6 +2,7 @@ module sparse_interpolation
 use, intrinsic :: ieee_arithmetic
 use share, only: dp, ndim, npix, n_p, inter, f, f_access, f_format, fmtformat, npca, transposed, ntot
 use grid_geometry
+use quantized_grid, only: quantized_active, quantized_spectrum
 use booklib, only: spline_fit, spline_int
 implicit none
 private
@@ -51,7 +52,9 @@ else
         valid = .false.
         return
     endif
-    if (f_access == 0) then
+    if (quantized_active) then
+        call quantized_spectrum(record,spectrum)
+    else if (f_access == 0) then
         spectrum = f(:,record)
     else
         !$omp critical(sparse_file_read)

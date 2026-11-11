@@ -4,8 +4,10 @@ program ferre
 use share
 use timer
 use grid_geometry
+use quantized_grid, only: quantized_active, reset_quantized
 use, intrinsic :: ieee_arithmetic
 implicit none
+integer :: previous_access=-1, previous_format=-1
 
 
 real(dp), allocatable	   :: pf(:)		! vector of fixed parameters
@@ -151,6 +153,9 @@ samesynth= .true.
 do i=1,maxsynth
   if (trim(synthfile(i)) .ne. trim(synthfile0(i))) samesynth= .false.
 enddo
+if (f_access /= previous_access .or. f_format /= previous_format) samesynth=.false.
+! Legacy direct files are closed at the end of each control file.
+if (f_access == 1 .and. .not.quantized_active) samesynth=.false.
 if (.not. samesynth) then
   call start_timer
   npca(:)=0					!reset all elements of npca to 0
@@ -158,6 +163,8 @@ if (.not. samesynth) then
   call ellapsed_time(etime)
   write(*,*)'Done reading!'
   synthfile0(1:maxsynth)=synthfile(1:maxsynth)
+  previous_access=f_access
+  previous_format=f_format
 endif
 
 !check for consistency between inter and n_p
@@ -1222,7 +1229,7 @@ close(4)
 if (snr == -1._dp) close(5)
 if((nfilter > 1 .or. abs(cont) > 0) .and. sffile.gt.' ') close(7)
 if (lsf > 10) close(9)
-if (f_access == 1) close(10)
+if (f_access == 1 .and. .not.quantized_active) close(10)
 
 
 !sort output files when nthreads>1
@@ -1238,6 +1245,7 @@ endif
 
 end do !loop over multiple control (input nml) files
 
+call reset_quantized()
 call quit(status)
 
 end program ferre

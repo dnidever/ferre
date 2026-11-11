@@ -54,7 +54,7 @@ getlsf.f90 lsf_gauss.f90 normal.f90 normal2.f90 physical.f90 fsort.f90 msort.f90
 setuplambda.f90 wresample.f90 convol.f90 decompress.f90 \
 count_words.f90 quit.f90 
 
-SOURCE_MODULES = share.f90 grid_geometry.f90 booklib.f90 sparse_interpolation.f90 fun.f90 nelder_mead.f90 \
+SOURCE_MODULES = share.f90 grid_geometry.f90 quantized_grid.f90 booklib.f90 sparse_interpolation.f90 fun.f90 nelder_mead.f90 \
  random.f90 timer.f90 btr.f90 uob.f90 trn.f90 \
 m_mrgrnk.f90 lsq.f90 rnglib.f90 ranlib.f90 pdflib.f90 mcmc.f90 qr.f90
 
@@ -91,7 +91,9 @@ clean:
 
 
 grid_geometry.o: share.o
-sparse_interpolation.o: share.o grid_geometry.o booklib.o
+sparse_interpolation.o: share.o grid_geometry.o quantized_grid.o booklib.o
+quantized_grid.o: share.o grid_geometry.o
+lin.o qua.o cub.o spl.o nea.o read_f.o ferre.o chisurf.o: quantized_grid.o
 fun.o: grid_geometry.o
 
 share.mod: share.o

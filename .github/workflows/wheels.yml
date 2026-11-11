@@ -105,3 +105,5 @@ jobs:
           python "$GITHUB_WORKSPACE/tests/test_install.py"
           python "$GITHUB_WORKSPACE/tests/test_sparse.py" -v
           python "$GITHUB_WORKSPACE/tests/test_apogee_sparse.py"
+          python -m pip install numpy f90nml
+          python "$GITHUB_WORKSPACE/tests/test_quantized.py" -v

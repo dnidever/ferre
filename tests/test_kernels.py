@@ -14,7 +14,7 @@ import tempfile
 def main():
     root = Path(__file__).resolve().parents[1]
     sources = [root / 'src' / name for name in (
-        'share.f90', 'grid_geometry.f90', 'booklib.f90', 'timer.f90',
+        'share.f90', 'grid_geometry.f90', 'quantized_grid.f90', 'booklib.f90', 'timer.f90',
         'checkstat.f90', 'quit.f90', 'getee.f90', 'spl.f90', 'decompress.f90',
     )]
     sources += [root / 'tests/native/reference_spl.f90', root / 'tests/native/test_kernels.f90']

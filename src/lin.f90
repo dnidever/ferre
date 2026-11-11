@@ -9,6 +9,7 @@ use share, only: dp, ndim,indi,npix,n_p,ntot,ntimes,     &
                             f,ee,imap,                   &
 			    f_format,f_access,fmtformat
 				    
+use quantized_grid, only: quantized_active, quantized_spectrum
 implicit none
 
 !input/output 
@@ -36,7 +37,11 @@ do i=1,2**ndim
 enddo
 
 !load wrk
-if (f_access == 0) then
+if (quantized_active) then
+  do i=1,2**ndim
+    call quantized_spectrum(findex(imap(i)),wrk(:,i))
+  enddo
+else if (f_access == 0) then
   do i=1,2**ndim	
 	wrk(1:npix,i)=f(1:npix,findex(imap(i)))		
   enddo

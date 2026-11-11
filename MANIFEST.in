@@ -16,3 +16,6 @@ recursive-include benchmarks *.md *.json
 
 include build_support.py
 include tests/test_build_support.py
+
+include docs/quantized-grids.rst
+include tests/test_quantized.py
