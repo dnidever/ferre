@@ -80,3 +80,20 @@ PCA reconstruction traverses contiguous wavelength values, and regular-grid
 spline interpolation reuses weights across wavelengths. See
 `docs/performance.rst <docs/performance.rst>`_ for build overrides, numerical
 checks, and reproducible kernel and complete-fit benchmarks.
+
+Native uint16 PCA grids
+-----------------------
+
+The native quantized-grid reader retains PCA coefficients as 16-bit integers
+both in RAM (F_ACCESS=0) and on disk (F_ACCESS=1). Only requested neighboring
+records are restored to floating point, before interpolation and PCA expansion.
+The main coefficient array therefore uses half the storage without a hidden
+whole-grid float32 copy. Existing float32 grids remain supported.
+
+Install the optional converter dependencies with ``pip install 'ferre[quantize]'``
+and run ``ferre-quantize quantize source/grid.hdr compact-grid``. The converter
+preserves the source, writes a .hdr/.u16/.quant bundle and any NODEFILE sidecar,
+and includes checksums. Older executables require a decoded float32 copy.
+See ``docs/quantized-grids.rst`` for the format, Python API, supported layouts
+and accuracy/validation requirements. This is a new feature in the 1.1.0 source;
+it does not alter previously published grid releases.

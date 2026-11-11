@@ -29,8 +29,11 @@ use share, only: dp,maxndim,maxsynth,flen,    &
 
 		 
 use grid_geometry
+use quantized_grid, only: open_quantized, reset_quantized
 implicit none
 
+character(len=16) :: coeff_format
+character(len=flen) :: quantfile
 character(len=flen) :: nodefile
 !locals	
 real(dp), allocatable	:: 	f2(:,:)		!temporary storage for synth grid
@@ -67,7 +70,7 @@ real(dp)		::  maximo		    !max value of f
 real(dp)		::  minimo		    !min value of f
 
 
-namelist / synth / nodefile
+namelist / synth / nodefile, coeff_format, quantfile
 namelist / synth / multi,synthfile_internal,id,date,n_of_dim,npca,n_p,npix
 namelist / synth / label,llimits,steps,wave,logw,vacuum,resolution,original_sampling
 namelist / synth / synspec,modo,invalid_code,constant,continuum,precontinuum
@@ -78,6 +81,13 @@ namelist / synth / comments11,comments12,comments13,comments14
 namelist / synth / speclib_vers,type,ntot
 
 
+call reset_quantized()
+if (allocated(meanspca)) deallocate(meanspca)
+if (allocated(vpca)) deallocate(vpca)
+if (allocated(wpca)) deallocate(wpca)
+if (allocated(ff)) deallocate(ff)
+coeff_format = 'float32'
+quantfile = ''
 nodefile = ''
 ntot=0
 multi=0
@@ -408,6 +418,27 @@ if (npca(1) > 0) then !npca files contain means, v and w
 	endif
 			
 endif
+
+! Quantized PCA grids retain integer storage in both access modes.
+select case (trim(coeff_format))
+case ('uint16','UINT16')
+    if (f_format /= 1 .or. npca(1) <= 0) call grid_error('uint16 requires binary PCA coefficients')
+    if (any(synthfile(2:maxsynth) > '')) call grid_error('uint16 requires one SYNTHFILE; MULTI is supported')
+    if (any(fixfile(1:maxsynth) > '')) call grid_error('FIXFILE is not supported for uint16 PCA grids')
+    close(1)
+    if (allocated(f)) deallocate(f)
+    scalef = 1._dp
+    scaled = 0
+    badflux = -1000._dp
+    rango = range(1._dp)
+    minusculo = tiny(1._dp)
+    call open_quantized(synthfile(1),quantfile)
+    return
+case ('float32','FLOAT32')
+    if (len_trim(quantfile) /= 0) call grid_error('QUANTFILE requires COEFF_FORMAT=uint16')
+case default
+    call grid_error('Unsupported COEFF_FORMAT; expected float32 or uint16')
+end select
 
 !if synthfile access is through a file, we don't load it in memory
 !but open the file for direct access and leave it open

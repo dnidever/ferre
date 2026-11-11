@@ -4,15 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ferre"
-version = "1.0.4"
+version = "1.1.0"
 description = "FERRE spectral fitting executable and Python utilities"
 readme = "README.rst"
 requires-python = ">=3.9"
 authors = [{name = "David Nidever"}]
 
+[project.optional-dependencies]
+quantize = ["numpy>=1.23", "f90nml>=1.4.4"]
+
 [project.scripts]
 ferre = "ferre._runtime:main"
 ascii2bin = "ferre._runtime:ascii2bin_main"
+ferre-quantize = "ferre.quantization:main"
 
 [tool.setuptools]
 package-dir = {"" = "python"}

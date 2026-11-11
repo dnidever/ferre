@@ -1,0 +1,42 @@
+{
+  "float32-ram": {
+    "peak_rss_bytes": 3432861696,
+    "wall_seconds": 53.29151914292015,
+    "returncode": 1,
+    "quantization_log": []
+  },
+  "uint16-ram": {
+    "peak_rss_bytes": 1756319744,
+    "wall_seconds": 46.47249318100512,
+    "returncode": 1,
+    "quantization_log": [
+      "read_f       -> uint16 coefficient array: 1696464000 RAM bytes"
+    ]
+  },
+  "uint16-disk": {
+    "peak_rss_bytes": 59580416,
+    "wall_seconds": 43.791117066983134,
+    "returncode": 1,
+    "quantization_log": [
+      "read_f       -> uint16 coefficient array: 0 RAM bytes"
+    ]
+  },
+  "comparison": {
+    "quantized_ram_disk_identical": true,
+    "max_absolute_flux_change": 3.300000000006076e-05,
+    "rms_flux_change": 4.947579211954768e-06,
+    "points": 32,
+    "ram_saved_bytes": 1676541952,
+    "rss_ratio": 0.51161972125078
+  },
+  "prior_experiment_match": {
+    "calibration": true,
+    "encoded_sample_records": 128,
+    "encoded_sample_bit_exact": true
+  },
+  "platform": {
+    "system": "Darwin",
+    "architecture": "x86_64"
+  },
+  "benchmark_note": "Single local runs including grid loading and 32 interpolation outputs; wall times are not isolated interpolation throughput measurements."
+}

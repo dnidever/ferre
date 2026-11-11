@@ -9,6 +9,7 @@ use share, only: dp, ndim,npix,n_p,ntimes,          &
                     f,                              &
 	            f_format,f_access,fmtformat
 				    
+use quantized_grid, only: quantized_active, quantized_spectrum
 implicit none
 
 !input/output 
@@ -26,7 +27,9 @@ real(dp)		:: t(ndim)	!input p's run 0-1, t's run 1-n_p(i)
 t(1:ndim)=p(1:ndim)*(n_p(1:ndim)-1)+1.0_dp
 
 !load wrk
-if (f_access == 0) then
+if (quantized_active) then
+  call quantized_spectrum(dot_product(ntimes,nint(t(1:ndim))-1)+1,flux)
+else if (f_access == 0) then
   flux(1:npix)=f(1:npix,dot_product(ntimes,nint(t(1:ndim))-1)+1)
 else
   !$omp critical
